@@ -8,7 +8,6 @@ cp suricata.yaml ${SURICATA_PATH}
 cp secondif.yaml ${SURICATA_PATH}
 
 cd ${SURICATA_PATH}
-ls -al
 rm log/stats.log
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH timeout $PS_TIME ./src/suricata -c suricata.yaml -s temp.rules --dpdk
 cp log/stats.log log/stats.log.snapshot

@@ -18,8 +18,10 @@ sudo mkdir -p /mnt/huge
 sudo mkdir -p /mnt/huge_1G
 (sudo mount | grep hugetlbfs) > /dev/null || sudo mount -t hugetlbfs nodev /mnt/huge
 addline "nodev /mnt/huge hugetlbfs       defaults        0 0" /etc/fstab
-echo 512 | sudo tee /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
-addline "vm.nr_hugepages=512" /etc/sysctl.conf
+echo 4096 | sudo tee /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
+addline "vm.nr_hugepages=4096" /etc/sysctl.conf
+
+sudo chmod o-w -R /local 
 
 
 USERS="root `ls /users`"
