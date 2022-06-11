@@ -29,7 +29,7 @@ for i in $(seq 0 2) ; do
        addline "${ip}	node-$i-ctrl" /etc/hosts
 done
 
-wget https://github.com/tbarbette/retina-expe/blob/master/bootstrap.sh
+cd $(dirname $0)
 chmod +x bootstrap.sh
 ./bootstrap.sh
 
