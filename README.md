@@ -92,7 +92,7 @@ Here is each argument of the command line explained line by line:
 
 The final command to run is therefore:
 	cd /local/retina-expe/
-	npf-compare "local+fastclick,SAMPLE=pkt_count:Link speed" local+retina:Retina --test http.npf --cluster client=node-0-ctrl,nfs=0 server=node-1-ctrl,nfs=0 dut=node-2-ctrl,nfs=0 --show-full --show-cmd --variables "CPU=1" "SAMPLE={log_tls}" "DPDK_PATH=$DPDK_PATH" "GEN_RATE=[5000-50000#5000]" --graph-filename ssl.pdf --graph-size 6 3 --tags ssl tls rate
+	npf-compare "local+fastclick,SAMPLE=pkt_count:Link speed" local+retina:Retina --test http.npf --cluster client=node-0-ctrl,nfs=0 server=node-1-ctrl,nfs=0 dut=node-2-ctrl,nfs=0 --show-full --show-cmd --variables "CPU=1" "SAMPLE={log_tls}" "DPDK_PATH=$DPDK_PATH" "GEN_RATE=[5000-30000#5000]" --graph-filename ssl.pdf --graph-size 6 3 --tags ssl tls rate
 
 This will produce a few PDF graphs, the ssl-avg_good_bps.pdf shoud look like the image below. Currently, only the baseline and Retina are tested. We're adding Suricata, stay tuned!
 
