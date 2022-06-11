@@ -11,7 +11,6 @@ tar xvf ${OFED}.tgz
 pushd ${OFED}
 sudo ./mlnxofedinstall --dpdk --upstream-libs --with-mft --with-kernel-mft --without-fw-update -q
 #ibv_devinfo    # verify firmware is correct, set to Ethernet
-sudo /etc/init.d/openibd restart
 
 popd
 wget http://fast.dpdk.org/rel/dpdk-21.08.tar.xz
