@@ -21,7 +21,13 @@ addline "nodev /mnt/huge hugetlbfs       defaults        0 0" /etc/fstab
 echo 512 | sudo tee /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
 addline "vm.nr_hugepages=512" /etc/sysctl.conf
 
-sudo chsh -s /bin/bash $USER
+
+USERS="root `ls /users`"
+for user in $USERS; do
+	sudo chsh -s /bin/bash $user
+	echo "source /local/env" | sudo tee -a /users/$user/.bashrc &> /dev/null
+done
+
 
 HOSTNAME=$(hostname)
 for i in $(seq 0 2) ; do
@@ -29,7 +35,7 @@ for i in $(seq 0 2) ; do
        addline "${ip}	node-$i-ctrl" /etc/hosts
 done
 
-ln -s $(dirname $0) /local/retina-expe/
+ln -s $(dirname $0) /local/retina-expe
 
 cd $(dirname $0)
 chmod +x bootstrap.sh

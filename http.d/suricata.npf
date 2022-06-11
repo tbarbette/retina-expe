@@ -1,6 +1,5 @@
 %suricata:script@dut sudo=true
-export DPDK_PATH=~/workspace/dpdk-21.08/install
-export LD_LIBRARY_PATH=$DPDK_PATH/lib/x86_64-linux-gnu/:/usr/lib64/
+export LD_LIBRARY_PATH=$DPDK_PATH/lib/x86_64-linux-gnu/:/usr/lib64/:/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
 cp temp.rules $SURICATA_PATH
 cp suricata.yaml $SURICATA_PATH
 cd $SURICATA_PATH

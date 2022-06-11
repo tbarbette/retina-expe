@@ -5,21 +5,34 @@ Note: Before running the experiments, you need to prepare your testbed according
 ## Physical testbed
 For the results in the paper, we used our own 100G machines. For most experiments we used a TAP on the Stanford traffic. For the Figure 6 experiment we used 2 machines in a client/server scenario, and a third machine acting as a TAP between those machines.
 
-This repository focus on reproducing that last experiment. We propose to use CloudLab, a publicly available machine provider for reasearch purpose. 
+This repository focus on reproducing that last experiment. We propose to use CloudLab, a publicly available machine provider for reasearch purpose.
 
 In any cases you need Mellanox NICs (ConnectX 4-7 or BlueField 1-2), hardware support for other NICs is untested.
 
 ### CloudLab
-The profile used for the machines is available at (https://www.cloudlab.us/p/0a939042304ad84079773db02a1e058e434b7299).
+The profile used for the machines is available at (https://www.cloudlab.us/p/0a939042304ad84079773db02a1e058e434b7299). 
 
-This profile will build a ring of 3 machines. Both client and server use their second interface to mirror packets to the dut running retina. The machine uses Ubuntu 18.04, we recommend doing the same.
+This profile will build a ring of 3 machines. Both client and server use their second interface to mirror packets to the dut running retina. The machine uses Ubuntu 20.04, we recommend doing the same.
+
+Create an account on (https://www.cloudlab.us/) then follow this link and click on "instanciate". No need to give a name to the experiment then click on Finish. The profile will automatically launch the bootstrap.sh script to install everything on all machines.  After a few minutes, you will get the SSH command to jump to the server.
+
+	You need to do "sudo su geniuser" to get the right environment in the cloudlab image!
+
+#### Verify the cloudlab image works
+	
+	sudo su geniuser
+	cd /local/retina-expe/
+	cat /local/logs/startup.log
+
+Verify the last line is "Boostrap finished!", if not the script may still be running.
 
 ## Software
 
-We recommand using Ubuntu 18.04 as this is what we used for all experiments.
+We recommand using Ubuntu 20.04 as this is what we used for all experiments.
 
 ### Automatic
-We recommand running ./bootstrap.sh on all machines to install all dependencies at once. This will only work with Ubuntu (preferably 18.04).
+We recommand running ./bootstrap.sh on all machines to install all dependencies at once. This will only work with Ubuntu (preferably 20.04).
+This is already done with the Cloudlab image.
 
 ### Manual
 
@@ -37,12 +50,13 @@ NPF will look for cluster/ and repo/ in your current working/testie directory. W
 #### DPDK
 #### Rust
 #### Retina
+#### Suricata
 
 ## Running the experiment
 Our experiments uses NPF, a tool to manage experiments, run the tests over a cluster and collect results.
 
 ### Configuring NPF
-NPF needs passwordless sudo access through SSH to all machines.
+NPF needs passwordless sudo access through SSH to all machines. This is already provided if using the CloudLab image.
 
 ### Details about NPF
 NPF uses a test description files that gives variables, scripts, setup phase, where to run what, ... It is in this repository "http.npf".
@@ -78,4 +92,9 @@ Here is each argument of the command line explained line by line:
 	--tags ssl tls rate high #Tags according to the experiment, see http.npf
 
 The final command to run is therefore:
+	sudo su geniuser
+	cd /local/retina-expe/
+	
+The output should look like :
+	
 
