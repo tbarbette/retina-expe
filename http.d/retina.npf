@@ -1,0 +1,69 @@
+%retina:script@dut autokill=true delay=7 sudo=true
+cp config.toml ${RETINA_PATH}/config.tmp.toml
+cd ${RETINA_PATH}
+export LD_LIBRARY_PATH=~/workspace/dpdk-21.08/install/lib/x86_64-linux-gnu/:$DPDK_PATH/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+if [[ $SAMPLE == *"log"* ]] ; then
+	SUPL="-o /tmp/retina.log"
+fi
+
+timeout $PS_TIME env LD_LIBRARY_PATH=$LD_LIBRARY_PATH RUST_BACKTRACE=1 ./target/release/${SAMPLE} -c config.tmp.toml $SUPL
+sleep $(( $GEN_TIME - $PS_TIME ))
+
+%file@dut config.toml
+main_core = 0
+nb_memory_channels = 6
+
+[mempool]
+    capacity = $MBUFS
+    cache_size = 512
+
+[online]
+    duration = 300
+    nb_rxd = $RXD
+    promiscuous = true
+    mtu = 1500
+    hardware_assist = true
+
+    [online.monitor.display]
+        throughput = true
+        mempool_usage = true
+        port_stats = ["rx_good_packets",
+                        "rx_good_bytes",
+                        "rx_phy_packets",
+                        "rx_phy_bytes",
+                        "rx_mbuf_allocation_errors",
+                        "rx_phy_discard_packets",
+                        "rx_missed_errors",
+                        "rx_q"]
+    [online.monitor.log]
+        directory = "./logs"
+        interval = 1000
+
+    [[online.ports]]
+        device = "${self:1:pci}"
+
+        cores = [ $(( ",".join([str(1 + i) for i in range($CPU)])  )) ]
+
+    [[online.ports]]
+        device = "${self:0:pci}"
+
+        cores = [ $(( ",".join([str(1 + i) for i in range($CPU)])  )) ]
+
+#[offline]
+#    pcap = "../sample_pcaps/test_captures_tls13-rfc8446.pcap"
+#    #pcap = "../sample_pcaps/test_captures_tls13-20-chacha20poly1305.pcap"
+#    #pcap = "../sample_pcaps/smallFlows.pcap"
+#    mtu = 9702
+
+[conntrack]
+    max_connections = $CAPACITY  # connections per core
+    max_out_of_order = $OO
+    timeout_resolution = 100
+    udp_inactivity_timeout = 60000
+    tcp_inactivity_timeout = $TIMEOUT
+    tcp_establish_timeout = $SYN_TIMEOUT
+    init_synack = $ACCEPTNSYN
+    init_fin = $ACCEPTNSYN
+    init_rst = $ACCEPTNSYN
+    init_data = $ACCEPTNSYN
+

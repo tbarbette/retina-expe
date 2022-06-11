@@ -1,0 +1,94 @@
+%fastclick:script@dut sudo=true deps=middleclick delay=7 autokill=false
+cat $SAMPLE CONFIG > C
+click --dpdk -l 0-$(($CPU)) -- C
+
+%file@dut syn_log
+elementclass FNT {
+    [0]
+
+    -> IPClassifier("syn and not ack and not rst and not fin and not psh and not urg")
+    -> c :: CounterMP
+    -> PathSpinlock
+    ->  ToDump(/tmp/mem/dump.fc.pcap);
+}
+
+%file@dut pkt_count
+elementclass FNT {
+    [0] -> Discard;
+}
+
+%file@dut state_count
+
+elementclass FNT {
+    [0] -> ps :: PaintSwitch;
+
+    ps[0]
+        -> FlowIPManagerMP(TIMEOUT $(( int($TIMEOUT / 1000)  )), CAPACITY $CAPACITY )
+        -> tin1 :: TCPStateIN(RETURNNAME tin2, ACCEPT_NONSYN $ACCEPTNSYN)
+        -> Discard;
+    ps[1]
+        -> FlowIPManagerMP(TIMEOUT $(( int( $TIMEOUT / 1000) )), CAPACITY $CAPACITY )
+        -> tin2 :: TCPStateIN(RETURNNAME tin1, ACCEPT_NONSYN $ACCEPTNSYN)
+        -> Discard;
+}
+%file@dut conn_count
+
+elementclass FNT {
+    [0] -> ps :: PaintSwitch;
+
+    ps[0]
+        -> FlowIPManagerMP(TIMEOUT $(( int($TIMEOUT / 1000)  )), CAPACITY $CAPACITY )
+        -> IPIn
+        -> tin1 :: TCPStateIN(RETURNNAME tin2, ACCEPT_NONSYN $ACCEPTNSYN)
+        -> SimpleTCPReorder
+        -> Discard;
+    ps[1]
+        -> FlowIPManagerMP(TIMEOUT $(( int( $TIMEOUT / 1000) )), CAPACITY $CAPACITY )
+        -> IPIn
+        -> tin2 :: TCPStateIN(RETURNNAME tin1, ACCEPT_NONSYN $ACCEPTNSYN)
+        -> SimpleTCPReorder
+        -> Discard;
+}
+
+
+
+%file@dut CONFIG
+
+
+DPDKInfo($MBUFS)
+
+fnt :: FNT();
+
+fd0 :: FromDPDKDevice(${self:0:pci}, PROMISC 1, SCALE parallel, NDESC $RXD)
+    -> MarkIPHeader(OFFSET 14)
+//    -> IPPrint
+    -> Paint(0)
+    -> ac :: AverageCounterIMP
+    -> [0]fnt;
+
+fd1 :: FromDPDKDevice(${self:1:pci}, PROMISC 1, SCALE parallel, NDESC $RXD)
+    -> MarkIPHeader(OFFSET 14)
+//    -> IPPrint
+    -> Paint(1)
+    -> ac;
+
+
+stats :: Script(wait 1s,
+                read ac.link_rate,
+                read ac.rate,
+                set t $(now),
+                print "TIME-$t-RESULT-processed_pkts "$(add $(fd0.hw_count) $(fd1.hw_count) ) ,
+                print "TIME-$t-RESULT-dropped_pkts "$(add $(fd0.xstats rx_missed_errors) $(fd1.xstats rx_missed_errors) ) ,
+                loop);
+
+StaticThreadSched(stats -1);
+
+DriverManager(
+                    wait ${PS_TIME}s,
+                    print "RESULT-avg_good_pps "$(ac.rate),
+                    print "RESULT-avg_good_bps "$(ac.bit_rate),
+                    print "RESULT-opened "$(fnt/tin1.opened),
+                    //print "RESULT-tot_dropped_pkts "$(add $(fd0.xstats rx_missed_errors) $(fd1.xstats rx_missed_errors) ) ,
+    read fd0.xstats,
+    read fd1.xstats,
+);

@@ -1,0 +1,9 @@
+//Only valid for SYN!
+
+%tcpdump:script@dut sudo=true
+
+tcpdump "tcp[tcpflags] = 2" -i ${dut:0:ifname} -w /tmp/mem/dump.tcpdump.pcap &> out.log
+echo "RESULT-tot_good_pkts "$(cat out.log | grep captured | grep -oE "[0-9]+")
+echo "RESULT-tot_dropped_pkts "$(cat out.log | grep dropped | grep -oE "[0-9]+" | head -n 1)
+
+

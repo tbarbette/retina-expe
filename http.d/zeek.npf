@@ -1,0 +1,89 @@
+%zeek:init@dut sudo=true
+source /home/tbarbette/.zshrc_local
+export ZEEK_PATH=/home/tbarbette/workspace/npf/build/zeek/
+export PATH=$ZEEK_PATH/bin:$PATH
+cd /home/tbarbette/workspace/npf/build/zeek
+
+%late_variables
+ZEEKMODE?=
+ZEEKSUF?=
+
+%-zeekctl,zeek:script@dut sudo=true delay=5
+source /home/tbarbette/.zshrc_local
+export ZEEK_PATH=/home/tbarbette/workspace/npf/build/zeek/
+cp node.cfg $ZEEK_PATH/etc/
+cp local.zeek $ZEEK_PATH/
+cp ${NPF_TESTIE_PATH}/http.d/stats.zeek $ZEEK_PATH/
+cd $ZEEK_PATH/
+rm stats.log
+rm stats.log.snapshot
+ethtool -L ${dut:0:ifname} combined $CPU
+set_irq_affinity.sh ${dut:0:ifname}
+for c in $(seq 0 $(( $CPU - 1 )) ) ; do
+    mkdir -p th$c
+    cd th$c
+    taskset -c $c-$c  timeout ${PS_TIME} ../build/src/zeek  -C -b -i ${ZEEKMODE}${dut:0:ifname} ../local.zeek ../stats.zeek ${ZEEKSUF} &
+    cd ..
+done
+wait
+#dpdk::${dut:0:pci}
+echo "Zeek finished"
+
+
+%zeekctl,zeek:script@dut sudo=true delay=0
+source /home/tbarbette/.zshrc_local
+export ZEEK_PATH=/home/tbarbette/workspace/npf/build/zeek/
+cp node.cfg $ZEEK_PATH/etc
+cp local.zeek $ZEEK_PATH/
+cp ${NPF_TESTIE_PATH}/http.d/stats.zeek $ZEEK_PATH/
+cd $ZEEK_PATH/
+rm stats.log
+rm stats.log.snapshot
+ethtool -L ${dut:0:ifname} combined $CPU
+set_irq_affinity.sh ${dut:0:ifname} &
+zeekctl stop
+sleep 1
+killall -9 zeek
+echo "Deploying zeek..."
+taskset -c 0-$CPU zeekctl deploy
+sleep ${PS_TIME}
+echo "End!"
+cp logs/current/stats.log stats.log.snapshot
+tail stats.log.snapshot
+pwd
+echo "Stopping zeek..."
+zeekctl stop
+echo "Zeek finished"
+
+%file@dut local.zeek
+@load base/frameworks/files/main.zeek
+@load base/frameworks/input/main.zeek
+@load base/frameworks/input/readers/ascii.zeek
+@load base/frameworks/input/readers/benchmark.zeek
+@load base/frameworks/logging/main.zeek
+@load base/frameworks/logging/writers/ascii.zeek
+@load base/protocols/ssl
+const ignore_checksums = T &redef;
+
+%file@dut node.cfg
+[manager]
+type=manager
+host=localhost
+
+[proxy-1]
+type=proxy
+host=localhost
+
+[zeek]
+#type=standalone
+type=worker
+host=localhost
+interface=af_packet::ens2f0
+#interface=dpdk::0000:51:00.0,0000:51:00.1
+lb_method=custom
+lb_procs=$CPU
+af_packet_fanout_id=101
+af_packet_fanout_mode=AF_Packet::FANOUT_QM
+af_packet_buffer_size=134217728
+pin_cpus=$(( ",".join( [ str(i) for i in range($CPU) ] ) )) 
+

@@ -1,0 +1,387 @@
+%info
+Generate HTTP traffic between two nodes and TAP it to Retina
+
+%variables
+
+//HTTP generator parameters
+GEN_CONCURRENT=128
+GEN_THREADS=32
+HTTP_PORT=80
+ssl|tls:HTTP_PORT=443
+WRK_HOST=10.100.0.2
+FSIZE=256
+// - Request rate
+GEN_RATE=-1
+rate,ssl:GEN_RATE={1000}
+rate,ssl,normal:GEN_RATE+={100,500,1000,2000,3000,4000,5000,10000,15000,20000,22500,25000,30000}
+rate,ssl,high:GEN_RATE+={5000,7500,10000,12500,15000,17500,20000,22500,25000,27500,30000}
+rate,ssl,low:GEN_RATE+={250,500,750,1000,1250,1500,1750,2000,2250,2500,2750,3000}
+rate,ssl,verylow:GEN_RATE+={50,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900,100}
+
+
+
+//HTTP Server parameter
+NGINX_NWORKER=32
+FILE_PATH=bin
+NGINX_PORT=80
+ssl|tls:NGINX_PORT=443
+
+//Experiment timing parameter
+GEN_TIME=25
+PS_TIME=20
+zeekctl:GEN_TIME=30 //Zeek has some slow init time
+
+//Generic DUT parameters
+CPU=1
+
+
+//Paths
+RETINA_PATH=EXPAND(${NPF_TESTIE_PATH}/retina/)
+SURICATA_PATH=EXPAND(${NPF_TESTIE_PATH}/suricata/)
+
+//Which APP to run in the DUT
+SAMPLE={conn_count,pkt_count}
+TCP=yes
+TLS=no
+HTTP=no
+http:HTTP=yes
+tls|http:TCP=yes
+tls:TLS=yes
+conn:SAMPLE=conn_count
+tls:SAMPLE=log_tls
+http:SAMPLE=log_http
+
+//Miscalineoux
+BURN=0
+CPUFREQ=2400
+CPUFREQ_FORCE_RANGE=1
+TIMEOUT=300000
+SYN_TIMEOUT=5000
+RXD=32768
+CAPACITY=524288
+MBUFS=2097151
+OO=8
+ACCEPTNSYN=true
+CHKSUM=none
+CHKSUM_BOOL=no
+HALF=0
+KEEPALIVE=0
+ZERO_THRESH_PC=1
+half:HALF=1
+
+
+
+%config
+var_names={FSIZE:HTTP object size (KB),THROUGHPUT:HTTP Goodput,avg_good_bps:Bytes processed (Gbps),GEN_RATE:HTTP Requests (kreq/s),zero_loss_throughput:Zero loss throughput (Gbps)}
+ssl|tls:var_names+={GEN_RATE:HTTPS Requests (kreq/s)}
+var_log={FSIZE}
+var_lim={FSIZE:1-256,result-avg_good_bps:0-,result-zero_loss_throughput:0-80}
+var_unit={THROUGHPUT:GB/s}
+var_divider={avg_good_bps:1000000000,GEN_RATE:1000,zero_loss_throughput:1000000000}
+var_format={avg_good_bps:%d,CPU:%d}
+//graph_cross_reference={FSIZE:REQUEST}
+result_add={NBREQ,THROUGHPUT,REQUEST}
+results_expect={avg_good_bps}
+timeout=45
+accept_zero={DROPPED,zero_loss_throughput,tot_dropped_pkts}
+
+%import@dut cpufreq-script
+
+
+%init@client sudo=true 0:ip=10.100.0.1
+echo 0 | sudo tee /sys/bus/pci/devices/0000\:51\:00.0/roce_enable
+echo 0 | sudo tee /sys/bus/pci/devices/0000\:51\:00.1/roce_enable
+sysctl -w net.core.somaxconn=262144
+sysctl -w net.ipv4.tcp_max_syn_backlog=3240000
+sysctl -w net.ipv4.ip_local_port_range="1024 65000"
+sysctl -w net.ipv4.tcp_tw_reuse=1
+sysctl -w net.ipv4.tcp_fin_timeout=5
+cpupower frequency-set -g performance
+cpupower frequency-set -u 3400M -d 3400M
+
+ip addr flush dev ${self:0:ifname}
+ethtool -K ${self:0:ifname} hw-tc-offload on
+ethtool -L ${self:0:ifname} combined 32
+set_irq_affinity.sh ${self:0:ifname}
+
+ifconfig ${self:1:ifname} up
+
+
+tc qdisc del dev ${self:0:ifname} handle ffff: ingress
+tc qdisc del dev ${self:0:ifname} root
+if [ $HALF -lt 2 ] ; then
+tc qdisc add dev ${self:0:ifname} handle ffff: ingress
+tc filter add dev ${self:0:ifname} parent ffff: flower skip_hw indev ${self:0:ifname} action mirred egress mirror dev ${self:1:ifname}
+fi
+if [ $HALF -eq 1 ] ; then
+    tc qdisc add dev ${self:0:ifname} handle 1: root prio
+    tc filter add dev ${self:0:ifname} parent 1: protocol all u32 match u8 0 0 action mirred egress mirror dev ${self:1:ifname}
+fi
+
+
+ifconfig ${self:0:ifname} 10.100.0.1 netmask 255.255.0.0
+
+%init@server sudo=true 0:ip=10.100.0.2
+echo 0 | sudo tee /sys/bus/pci/devices/0000\:51\:00.0/roce_enable
+echo 0 | sudo tee /sys/bus/pci/devices/0000\:51\:00.1/roce_enable
+sysctl -w net.core.somaxconn=262144
+sysctl -w net.ipv4.tcp_max_syn_backlog=3240000
+sysctl -w net.ipv4.ip_local_port_range="1024 65000"
+sysctl -w net.ipv4.tcp_tw_reuse=1
+sysctl -w net.ipv4.tcp_fin_timeout=5
+cpupower frequency-set -g performance
+cpupower frequency-set -u 3400M -d 3400M
+apt-get install -y nginx
+ethtool -K ${self:0:ifname} hw-tc-offload on
+ethtool -L ${self:0:ifname} combined 32
+set_irq_affinity.sh ${self:0:ifname}
+
+ifconfig ${self:1:ifname} up
+
+tc qdisc del dev ${self:0:ifname} root
+tc qdisc del dev ${self:0:ifname} handle ffff: ingress
+
+if [ $HALF -eq 0 -o $HALF -eq 2 ] ; then
+    tc qdisc add dev ${self:0:ifname} handle ffff: ingress
+    tc filter add dev ${self:0:ifname} parent ffff: flower skip_hw indev ${self:0:ifname} action mirred egress mirror dev ${self:1:ifname}
+fi
+if [ $HALF -eq 2 ] ; then
+    tc qdisc add dev ${self:0:ifname} handle 1: root prio
+    tc filter add dev ${self:0:ifname} parent 1: protocol all u32 match u8 0 0 action mirred egress mirror dev ${self:1:ifname}
+fi
+ifconfig ${self:0:ifname} 10.100.0.2 netmask 255.255.0.0
+
+
+//%import@client wrk2 delay=8
+%import@server nginx delay=2
+
+%script@server autokill=false
+dd if=/dev/urandom bs=1k count=$FSIZE of=nginx/bin
+
+%fastclick:pyexit
+for kind, ts_results in KIND_RESULTS.items():
+    df={}
+    for ts, results in ts_results.items():
+        for type,r in results.items():
+            df.setdefault(type,[])
+            df[type].append(r)
+
+    for type, rs in df.items():
+        RESULTS["tot_" + type] = rs[-1] - rs[0]
+
+RESULTS["pc_dropped_pkts"] = RESULTS["tot_dropped_pkts"] * 100 / (RESULTS["tot_processed_pkts"] + RESULTS["tot_dropped_pkts"] )
+if RESULTS["pc_dropped_pkts"] < ZERO_THRESH_PC:
+        RESULTS["zero_loss_throughput"] = RESULTS["avg_good_bps"]
+
+%retina:pyexit
+import os
+import json
+os.chdir(RETINA_PATH)
+j = json.load(open("logs/" + sorted(os.listdir("logs"))[-1] + "/throughputs.json"))
+for i in j:
+     RESULTS[i] = j[i]
+
+RESULTS["pc_dropped_pkts"] = RESULTS["tot_dropped_pkts"] * 100 / (RESULTS["tot_processed_pkts"] + RESULTS["tot_dropped_pkts"] )
+if RESULTS["pc_dropped_pkts"] < ZERO_THRESH_PC:
+        RESULTS["zero_loss_throughput"] = RESULTS["avg_good_bps"]
+
+%snort:pyexit
+RESULTS["pc_dropped_pkts"] = RESULTS["tot_dropped_pkts"] * 100 / (RESULTS["tot_processed_pkts"] + RESULTS["tot_dropped_pkts"] )
+if RESULTS["pc_dropped_pkts"] < ZERO_THRESH_PC:
+        RESULTS["zero_loss_throughput"] = RESULTS["avg_good_bps"]
+
+
+%suricata:pyexit
+
+import os
+import sys
+import re
+os.chdir(SURICATA_PATH)
+bytes=0
+packets=0
+j = open("log/stats.log.snapshot")
+s = j.readlines()
+
+if len(s) < 10:
+    print("Could not find stats")
+    exit()
+
+auptime=[]
+adropped=[]
+abytes=[]
+apackets=[]
+
+for line in s:
+    t = re.search("Processing time: ([0-9]+)us", line)
+    if t:
+        auptime.append(int(t.group(1)))
+    if re.search("decoder.bytes", line):
+        abytes.append(int(line.split()[-1]) * 8)
+    if re.search("decoder.pkts", line):
+        apackets.append(int(line.split()[-1]))
+    if re.search("capture.rx_errors", line):
+        adropped.append(int(line.split()[-1]))
+
+
+first = next((i for i, x in enumerate(apackets) if x > 10000), None)
+uptime = float(auptime[-2] - auptime[first]) / 1000000
+bytes = abytes[-2] - abytes[first] #Already converted to bits above
+packets = apackets[-2] - apackets[first]
+dropped = adropped[-2] - adropped[first]
+
+RESULTS["avg_good_bps"] = bytes / uptime
+RESULTS["avg_good_pps"] = packets / uptime
+RESULTS["tot_dropped_pkts"] = dropped
+RESULTS["tot_processed_pkts"] = packets
+
+RESULTS["pc_dropped_pkts"] = RESULTS["tot_dropped_pkts"] * 100 / (RESULTS["tot_processed_pkts"] + RESULTS["tot_dropped_pkts"] ) 
+if RESULTS["pc_dropped_pkts"] < ZERO_THRESH_PC:
+        RESULTS["zero_loss_throughput"] = RESULTS["avg_good_bps"]
+
+%include http.d/retina.npf
+%include http.d/fastclick.npf
+%include http.d/suricata.npf
+%include http.d/snort.npf
+%include http.d/zeek.npf
+%include http.d/wrk2-ns.npf
+
+%exit
+ls
+
+%zeek,zeekctl:pyexit
+import os
+import gzip
+import re
+import sys
+
+os.chdir('/home/tbarbette/workspace/npf/build/zeek')
+
+RESULTS['avg_process_bps'] = 0
+RESULTS['avg_good_bps'] = 0
+RESULTS['avg_process_pps'] = 0
+RESULTS['avg_good_pps'] = 0
+RESULTS['tot_dropped_pkts'] = 0
+RESULTS['tot_processed_pkts'] = 0
+
+g = open("stats.log.snapshot")
+
+#Map of fields to column index
+m = dict()
+
+#Dict of array with all columns for each machines
+data={}
+for l in g.readlines():
+    if l.startswith('#'):
+        if l.startswith('#fields'):
+            cols = re.split('\s+', l)[1:]
+            for i,n in enumerate(cols):
+                if n:
+                    m[n]= i
+            del m['peer']
+        continue
+    cols = re.split('\s+', l)
+    if int(cols[m['pkts_proc']]) < 1000:
+        continue
+    machine=cols[1]
+    data.setdefault(machine,[])
+    data[machine].append(cols)
+
+if len(data) == 0:
+    print("NO DATA!")
+    sys.exit(0)
+
+for t in data.values():
+    ts = float(t[-1][m['ts']]) - float(t[0][m['ts']])
+
+    res = dict()
+    for i in range(len(t)):
+        for key,index in m.items():
+            res.setdefault(key,0)
+            res[key] += float(t[i][index])
+    
+    RESULTS['avg_process_bps'] += res['bytes_recv'] * 8 / ts
+    RESULTS['avg_good_bps'] += res['bytes_recv'] * 8 / ts
+    RESULTS['avg_process_pps'] += res['pkts_proc'] / ts
+    RESULTS['avg_good_pps'] += res['pkts_proc'] / ts
+
+    RESULTS['tot_dropped_pkts'] += res['pkts_dropped']
+    RESULTS['tot_processed_pkts'] += res['pkts_proc']
+
+
+RESULTS["pc_dropped_pkts"] = RESULTS["tot_dropped_pkts"] * 100 / (RESULTS["tot_processed_pkts"] + RESULTS["tot_dropped_pkts"] )
+if RESULTS["pc_dropped_pkts"] < ZERO_THRESH_PC:
+        RESULTS["zero_loss_throughput"] = RESULTS["avg_good_bps"]
+
+
+%zeek,-zeekctl:pyexit
+import os
+import gzip
+import re
+import sys
+
+def parse_zeek():
+    #g = gzip.open(path,'rt')
+    RESULTS['avg_process_bps'] = 0
+    RESULTS['avg_good_bps'] = 0
+    RESULTS['avg_process_pps'] = 0
+    RESULTS['avg_good_pps'] = 0
+    RESULTS['tot_dropped_pkts'] = 0
+    RESULTS['tot_processed_pkts'] = 0
+
+    for th in range(CPU):
+        g = open("th"+str(th)+"/stats.log")
+
+
+        m = dict()
+
+        #Array with all columns
+        t=[]
+        for l in g.readlines():
+            if l.startswith('#'):
+                if l.startswith('#fields'):
+                    cols = re.split('\s+', l)[1:]
+                    for i,n in enumerate(cols):
+                        if n:
+                            m[n]= i
+                    del m['peer']
+                continue
+            cols = re.split('\s+', l)
+            if int(cols[m['pkts_proc']]) < 1000:
+                continue
+            t.append(cols)
+
+        if len(t) ==0:
+            print("NO DATA!")
+            sys.exit(0)
+
+        ts = float(t[-1][m['ts']]) - float(t[0][m['ts']])
+
+        res = dict()
+        for i in range(len(t)):
+            for key,index in m.items():
+                res.setdefault(key,0)
+                res[key] += float(t[i][index])
+        print(res)
+    RESULTS['avg_process_bps'] += res['bytes_recv'] * 8 / ts
+    RESULTS['avg_good_bps'] += res['bytes_recv'] * 8 / ts
+    RESULTS['avg_process_pps'] += res['pkts_proc'] / ts
+    RESULTS['avg_good_pps'] += res['pkts_proc'] / ts
+
+    RESULTS['tot_dropped_pkts'] += res['pkts_dropped']
+    RESULTS['tot_processed_pkts'] += res['pkts_proc']
+
+os.chdir('/home/tbarbette/workspace/npf/build/zeek')
+#dpath = "logs/" + sorted(os.listdir("logs"))[-1] + "/"
+#path = dpath + sorted(filter(lambda b: b.startswith("stats"),os.listdir(dpath)))[-1]
+parse_zeek()
+
+RESULTS["pc_dropped_pkts"] = RESULTS["tot_dropped_pkts"] * 100 / (RESULTS["tot_processed_pkts"] + RESULTS["tot_dropped_pkts"] )
+if RESULTS["pc_dropped_pkts"] < ZERO_THRESH_PC:
+        RESULTS["zero_loss_throughput"] = RESULTS["avg_good_bps"]
+
+
+
+%snort:require
+test $CPU -lt 2
+
+%import graph-beautiful
