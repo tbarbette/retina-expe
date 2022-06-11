@@ -7,7 +7,7 @@ fi
 sudo apt-get -y install python3 python3-pip build-essential meson pkg-config libnuma-dev python3-pyelftools libpcap-dev libclang-dev libyaml-dev  libpcre3 libpcre3-dbg libpcre3-dev build-essential libpcap-dev   \
                 libnet1-dev libyaml-0-2 libyaml-dev pkg-config zlib1g zlib1g-dev \
                 libcap-ng-dev libcap-ng0 make libmagic-dev         \
-                libnss3-dev libgeoip-dev liblua5.1-dev libhiredis-dev libevent-dev libjansson-dev cbindgen
+                libnss3-dev libgeoip-dev liblua5.1-dev libhiredis-dev libevent-dev libjansson-dev liblz4-dev
 OFED=MLNX_OFED_LINUX-5.4-1.0.3.0-ubuntu${DISTRIB_RELEASE}-x86_64
 wget http://www.mellanox.com/downloads/ofed/MLNX_OFED-5.4-1.0.3.0/${OFED}.tgz
 tar xvf ${OFED}.tgz
@@ -34,7 +34,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 echo "export PATH=\$PATH:/users/TomB/.local/bin/meson/" >> ~/.bashrc
 echo "export RTE_SDK=$DPDK_PATH" >> ~/.bashrc
 echo "export DPDK_PATH=$DPDK_PATH" >> ~/.bashrc
-echo "source $HOME/.cargo/env" ~/.bashrc
+echo "source $HOME/.cargo/env" >> ~/.bashrc
 
 
 source $HOME/.cargo/env
@@ -44,6 +44,7 @@ pushd retina
 cargo build --release
 popd
 
+cargo install --force cbindgen
 git clone https://github.com/OISF/suricata.git
 pushd suricata
 git checkout suricata-6.0.4
