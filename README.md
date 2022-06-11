@@ -10,17 +10,14 @@ This repository focus on reproducing that last experiment. We propose to use Clo
 In any cases you need Mellanox NICs (ConnectX 4-7 or BlueField 1-2), hardware support for other NICs is untested.
 
 ### CloudLab
-The profile used for the machines is available at (https://www.cloudlab.us/p/0a939042304ad84079773db02a1e058e434b7299). 
+The profile used for the machines is available at ( https://www.cloudlab.us/show-profile.php?uuid=82d026d4-e992-11ec-aacb-e4434b2381fc ). 
 
 This profile will build a ring of 3 machines. Both client and server use their second interface to mirror packets to the dut running retina. The machine uses Ubuntu 20.04, we recommend doing the same.
 
-Create an account on (https://www.cloudlab.us/) then follow this link and click on "instanciate". No need to give a name to the experiment then click on Finish. The profile will automatically launch the bootstrap.sh script to install everything on all machines.  After a few minutes, you will get the SSH command to jump to the server.
-
-	You need to do "sudo su geniuser" to get the right environment in the cloudlab image!
+Create an account on (https://www.cloudlab.us/) then follow this link and click on "instanciate". No need to give a name to the experiment then click on Finish. The profile will automatically launch the bootstrap.sh script to install everything on all machines.  After a dozen minutes, you will get the SSH command to jump to the server.
 
 #### Verify the cloudlab image works
 	
-	sudo su geniuser
 	cd /local/retina-expe/
 	cat /local/logs/startup.log
 
@@ -92,9 +89,8 @@ Here is each argument of the command line explained line by line:
 	--tags ssl tls rate high #Tags according to the experiment, see http.npf
 
 The final command to run is therefore:
-	sudo su geniuser
 	cd /local/retina-expe/
-	
-The output should look like :
-	
+	npf-compare "local+fastclick,SAMPLE=pkt_count:Link speed" local+retina:Retina --test http.npf --cluster client=node-0-ctrl,nfs=0 server=node-1-ctrl,nfs=0 dut=node-2-ctrl,nfs=0 --show-full --show-cmd --variables "CPU=1" "SAMPLE={log_tls}" "DPDK_PATH=$DPDK_PATH" "GEN_RATE=[5000-50000#5000]" --graph-filename ssl.pdf --graph-size 6 3 --tags ssl tls rate
+
+This will produce a few PDF graphs, the ssl-THROUGHPUT.pdf is the one used in the paper. Currently, only the baseline and Retina are tested. We're adding Suricata, stay tuned!
 

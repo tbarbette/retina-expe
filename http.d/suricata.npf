@@ -1,8 +1,14 @@
 %suricata:script@dut sudo=true
+mkdir -p /usr/local/var/run/suricata/ 
+mkdir -p $SURICATA_PATH/log
 export LD_LIBRARY_PATH=$DPDK_PATH/lib/x86_64-linux-gnu/:/usr/lib64/:/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-cp temp.rules $SURICATA_PATH
-cp suricata.yaml $SURICATA_PATH
-cd $SURICATA_PATH
+ls -al
+cp temp.rules ${SURICATA_PATH}
+cp suricata.yaml ${SURICATA_PATH}
+cp secondif.yaml ${SURICATA_PATH}
+
+cd ${SURICATA_PATH}
+ls -al
 rm log/stats.log
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH timeout $PS_TIME ./src/suricata -c suricata.yaml -s temp.rules --dpdk
 cp log/stats.log log/stats.log.snapshot
@@ -598,7 +604,7 @@ dpdk:
   # DPDK capture support
   # RX queues (and TX queues in IPS mode) are assigned to cores in 1:1 ratio
   interfaces:
-    - interface: 0000:51:00.0 # PCIe address of the NIC port
+    - interface: ${self:0:pci} # PCIe address of the NIC port
       # Threading: possible values are either "auto" or number of threads
       # - auto takes all cores
       # in IPS mode it is required to specify the number of cores and the numbers on both interfaces must match
@@ -632,7 +638,7 @@ dpdk:
       # - ips: the same as tap mode but it also drops packets that are flagged by rules to be dropped
       copy-mode: none
       copy-iface: none # or PCIe address of the second interface
-$(( "include: secondif.yaml" if $HALF == 0 else ""))
+$(( "include: ${SURICATA_PATH}secondif.yaml" if $HALF == 0 else ""))
     - interface: default
       threads: auto
       promisc: true
@@ -1607,9 +1613,9 @@ rule-files:
 ## Auxiliary configuration files.
 ##
 
-classification-file: ./etc/classification.config
-reference-config-file: ./etc/reference.config
-threshold-file: ./etc/threshold.config
+classification-file: ${SURICATA_PATH}/etc/classification.config
+reference-config-file: ${SURICATA_PATH}/etc/reference.config
+threshold-file: ${SURICATA_PATH}/etc/threshold.config
 
 ##
 ## Include other configs
