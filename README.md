@@ -44,3 +44,38 @@ Our experiments uses NPF, a tool to manage experiments, run the tests over a clu
 ### Configuring NPF
 NPF needs passwordless sudo access through SSH to all machines.
 
+### Details about NPF
+NPF uses a test description files that gives variables, scripts, setup phase, where to run what, ... It is in this repository "http.npf".
+
+At first run, NPF itself will build some dependencies by itself, such as FastClick to compute baseline speeds and WRK to generate HTTP load.
+Then NPF will run some init scripts on all machines. Installing NGINX on "server", configuring  IPs, ...
+
+Then for values of given variables, NPF will run scripts on all machines. In the first experiment for intance we re-run the same test but with 25 generation rates. Each test is run 3 times. And this is done for all "series" (baseline, Retina, Suricata, ... think of it as lines in your line graph)
+
+Then some cleanup python scripts are done after each runs, to parse results from logs and export it in the NPF format.
+
+After all tests, NPF will automatically produce some graph. You can add --output out.csv to generate some CSVs.
+
+### Running NPF
+
+Here is each argument of the command line explained line by line:
+
+	npf-compare 
+	 "local+fastclick,SAMPLE=pkt_count:Link speed" #The first serie to try : a baseline that only counts packets
+	  local+retina:Retina #The second serie : Retina itself
+	  --test http.npf #The test script
+	  --cluster #The NPF scripts define "roles" such as client and servers. Here you tell which machine will take which roles.
+			client=node-0-ctrl,nfs=0 #The "client" will be the machine named node-0-ctrl. It is not using NFS so we have to copy everything to the machine
+			server=node-1-ctrl,nfs=0
+			dut=node-2-ctrl,nfs=0
+	--show-full  #Show stdout and stderr in live, will create a lot of outputs but will tell you what's happening
+	--show-cmd  #Show the command launched and where
+	--variables #Override a few variables that will define parameters of the experiment
+		 "CPU=1" #Number of CPU to use
+		 "SAMPLE=log_tls" #The test app to run
+		 "DPDK_PATH=$DPDK_PATH" #Env variables will not pass through ssh and sudo. We have to pass them explicitely
+	--graph-filename ssl.pdf # basename for the generated graphs
+	--tags ssl tls rate high #Tags according to the experiment, see http.npf
+
+The final command to run is therefore:
+

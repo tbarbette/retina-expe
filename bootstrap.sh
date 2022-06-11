@@ -25,10 +25,13 @@ meson --prefix=$DPDK_PATH build
 cd build
 sudo ninja install
 sudo ldconfig
-
 popd 
 
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+echo "export PATH=\$PATH:/users/TomB/.local/bin/meson/" >> ~/.bashrc
+echo "export RTE_SDK=/users/TomB/workspace/dpdk/" >> ~/.bashrc
+echo "export DPDK_PATH=/users/TomB/workspace/dpdk/" >> ~/.bashrc
 
 source $HOME/.cargo/env
 
