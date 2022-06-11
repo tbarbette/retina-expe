@@ -26,7 +26,7 @@ sudo ninja install
 sudo ldconfig
 popd 
 
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y 
 
 echo "export PATH=\$PATH:/users/TomB/.local/bin/meson/" >> ~/.bashrc
 echo "export RTE_SDK=/users/TomB/workspace/dpdk/" >> ~/.bashrc
@@ -34,7 +34,7 @@ echo "export DPDK_PATH=/users/TomB/workspace/dpdk/" >> ~/.bashrc
 
 source $HOME/.cargo/env
 
-git clone git@github.com:stanford-esrg/retina.git
+git clone http://github.com/stanford-esrg/retina.git
 pushd retina
 cargo build --release
 
