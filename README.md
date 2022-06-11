@@ -99,5 +99,5 @@ The final command to run is therefore:
 
 This will produce a few PDF graphs, the ssl-avg_good_bps.pdf shoud look like the image below. Currently, only the baseline and Retina are tested. We're adding Suricata, stay tuned!
 
-!(Figure)[figs/ssl-avg_good_bps.pdf]
+!(Figure)[figs/ssl-avg_good_bps.png]
 
