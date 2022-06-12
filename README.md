@@ -28,13 +28,18 @@ No need to give a name to the experiment then click on Finish. The profile will 
 
 Verify the last line is "Boostrap finished!", if not the script may still be running.
 
-## Software
+### Alternative : your own testbed
+You need 3 x86_64 machines with dual-port 100G NICs. Machine 1 and 2 should have their first interface connected together. Their second interface connected to port 0 and 1 of the third machine.
 
 We recommand using Ubuntu 20.04 as this is what we used for all experiments.
 
+## Software
+
+We provide a script to automatically build dependencies, configure hugepages, ... It works on ClouldLab, and should work on your Ubuntu testbed. 
+
 ### Automatic
-We recommand running ./bootstrap.sh on all machines to install all dependencies at once. This will only work with Ubuntu (preferably 20.04).
-This is already done with the Cloudlab image.
+**This is already run on cloudlab, you have nothing to do.**
+Run ./bootstrap.sh on all machines to install all dependencies at once. This will only work with Ubuntu (preferably 20.04).
 
 ### Manual
 
@@ -50,6 +55,7 @@ NPF will look for cluster/ and repo/ in your current working/testie directory. W
 
 #### Mellanox OFED
 #### DPDK
+##### Allocate hugepages
 #### Rust
 #### Retina
 #### Suricata
