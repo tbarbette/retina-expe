@@ -1,12 +1,15 @@
 # Retina experiments
 
-Note: Before running the experiments, you need to prepare your testbed according to the following guidelines.
+This repository contains the scripts to run an experiment of the [Retina](https://github.com/stanford-esrg/retina) paper. 
+
+For most experiments we used a TAP on the Stanford traffic. For the Figure 6 experiment we used 2 machines in a client/server scenario, and a third machine acting as a TAP between those machines.
+
+The experiment manager is [NPF](https://github.com/tbarbette/npf), allowing to easily deploy the scripts over a cluster, and re-run experiments for multiple points and variables. In this experiment we will, as in the paper, augment the offered HTTP load and see how competing solutions perform.
+
+Before running the experiments, you need to prepare your testbed according to the following guidelines.
 
 ## Physical testbed
-For the results in the paper, we used our own 100G machines. For most experiments we used a TAP on the Stanford traffic. For the Figure 6 experiment we used 2 machines in a client/server scenario, and a third machine acting as a TAP between those machines.
-
-This repository focus on reproducing that last experiment. We propose to use CloudLab, a publicly available machine provider for reasearch purpose.
-
+For the results in the paper, we used our own 100G machines. We propose to use CloudLab, a publicly available machine provider for research purpose.
 In any cases you need Mellanox NICs (ConnectX 4-7 or BlueField 1-2), hardware support for other NICs is untested.
 
 ### CloudLab
