@@ -21,6 +21,9 @@ addline "nodev /mnt/huge hugetlbfs       defaults        0 0" /etc/fstab
 echo 4096 | sudo tee /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
 addline "vm.nr_hugepages=4096" /etc/sysctl.conf
 
+#Use a mem tmpfs
+sudo mount -t tmpfs -o size=8G tmpfs /tmp
+
 sudo chmod o-w -R /local 
 sudo chmod o-w -R /mydata
 
