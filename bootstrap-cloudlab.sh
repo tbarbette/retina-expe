@@ -22,6 +22,7 @@ echo 4096 | sudo tee /sys/devices/system/node/node0/hugepages/hugepages-2048kB/n
 addline "vm.nr_hugepages=4096" /etc/sysctl.conf
 
 sudo chmod o-w -R /local 
+sudo chmod o-w -R /mydata
 
 
 USERS="root `ls /users`"
@@ -38,6 +39,7 @@ for i in $(seq 0 2) ; do
 done
 
 ln -s $(dirname $0) /local/retina-expe
+ln -s $(dirname $0) /mydata/retina-expe
 
 cd $(dirname $0)
 chmod +x bootstrap.sh
