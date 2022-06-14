@@ -119,7 +119,9 @@ Here is each argument of the command line explained line by line:
 	--tags ssl tls rate high #Tags according to the experiment, see http.npf
 ```
 
-**Warning: if using the CloudLab c6525-25g nodes, add the ",nic=1+2" parameter to each nodes. Eg `client=node-0-ctrl,nfs=0,nic=1+2`. This is because NPF detects the NICs on the cluster machines, but those nodes use 25G mellanox NICs for both experiment and control, therefore NPF's interface 0 is actually the control NIC. Failure to do so will break the node connectivity. The only solution will therefore be to powercycle the node throught the CloudLab interface.**
+**Warning: if using the CloudLab c6525-25g nodes, add the ",nic=1+2" parameter** to each nodes. Eg `client=node-0-ctrl,nfs=0,nic=1+2`. This is because NPF detects the NICs on the cluster machines, but those nodes use 25G mellanox NICs for both experiment and control, therefore NPF's interface 0 is actually the control NIC. Failure to do so will break the node connectivity. The only solution will therefore be to powercycle the node throught the CloudLab interface.
+
+**Important: Run NPF from the dut node.** (node-2 on cloudlab) this is needed because NPF has currently no way to retrieve files over SSH before running the python parsing script. Performance won't be very affected by the few python instructions, especially if using isolcpus (this is the case on cloudlab).
 
 The final command to run is therefore:
 ```
