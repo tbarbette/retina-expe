@@ -26,7 +26,7 @@ No need to give a name to the experiment then click on Finish. The profile will 
 	cd /mydata/retina-expe/
 	tail -f /local/logs/startup.log
 
-Verify the last line is "Boostrap finished!", if not the script may still be running. It takes about 15 minutes install all dependencies and continue despite the node being marked as "ready".
+Verify the last line is "Boostrap finished!", if not the script may still be running. It takes about 15 minutes install all dependencies and continue despite the node being marked as "ready". The node will also reboot once to enable kenrel cmdline options, such as CPU isolation and 1G huge pages.
 
 ### Alternative : your own testbed
 You need 3 x86_64 machines with dual-port 100G Mellanox NICs (CX4 to CX7 or BF1-2). Other 100G NICs should work, but they're untested. Machine 1 and 2 should have their first interface connected together. Their second interface connected to port 0 and 1 of the third machine.
