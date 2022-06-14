@@ -22,7 +22,7 @@ if [ ! -f OFED_INSTALLED ] ; then
     touch OFED_INSTALLED
 fi
 
-if [ ! -f OFED_INSTALLED ] ; then
+if [ ! -f DPDK_INSTALLED ] ; then
     wget http://fast.dpdk.org/rel/dpdk-21.08.tar.xz
     tar xJf dpdk-21.08.tar.xz
     rm -f dpdk-21.08.tar.xz
