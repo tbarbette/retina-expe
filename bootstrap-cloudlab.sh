@@ -18,7 +18,7 @@ export PATH=$PATH:/users/$USER/.local/bin/meson/
 
 echo "Now adding 1G hugepages"
 sudo mkdir -p /mnt/huge_1G
-addline 'GRUB_CMDLINE_LINUX_DEFAULT="default_hugepagesz=1GB hugepagesz=1G hugepages=16 selinux=0 audit=0 nopti nospec_store_bypass_disable nospectre_v2 nospectre_v1 nospec l1tf=off mds=off mitigations=off isolcpus=0-15 nohz=on nohz_full=0-15 amd_iommu=off"' /etc/default/grub
+echo 'GRUB_CMDLINE_LINUX_DEFAULT="default_hugepagesz=1GB hugepagesz=1G hugepages=16 selinux=0 audit=0 nopti nospec_store_bypass_disable nospectre_v2 nospectre_v1 nospec l1tf=off mds=off mitigations=off isolcpus=0-15 nohz=on nohz_full=0-15 amd_iommu=off "' | sudo tee -a /etc/default/grub
 addline "nodev /mnt/huge_1G hugetlbfs       pagesize=1G        0 0" /etc/fstab
 sudo update-grub
 
