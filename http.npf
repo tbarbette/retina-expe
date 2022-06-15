@@ -53,6 +53,7 @@ CPUFREQ_FORCE_RANGE=1
 TIMEOUT=300000
 SYN_TIMEOUT=5000
 RXD=32768
+MTU=1514
 CAPACITY=524288
 MBUFS=2097151
 OO=8
@@ -108,8 +109,8 @@ ethtool -K ${self:1:ifname} gro off lro off
 ethtool -K ${self:0:ifname} hw-tc-offload on
 ethtool -L ${self:0:ifname} combined 32
 set_irq_affinity.sh ${self:0:ifname}
-ifconfig ${self:0:ifname} mtu 1514
-ifconfig ${self:1:ifname} mtu 1514
+ifconfig ${self:0:ifname} mtu $MTU
+ifconfig ${self:1:ifname} mtu $MTU
 ifconfig ${self:1:ifname} up
 
 
@@ -144,8 +145,8 @@ set_irq_affinity.sh ${self:0:ifname}
 
 ethtool -K ${self:0:ifname} gro off lro off
 ethtool -K ${self:1:ifname} gro off lro off
-ifconfig ${self:0:ifname} mtu 1514
-ifconfig ${self:1:ifname} mtu 1514
+ifconfig ${self:0:ifname} mtu $MTU
+ifconfig ${self:1:ifname} mtu $MTU
 
 ifconfig ${self:1:ifname} up
 

@@ -21,7 +21,7 @@ nb_memory_channels = 6
     duration = 300
     nb_rxd = $RXD
     promiscuous = true
-    mtu = 1500
+    mtu = $MTU
     hardware_assist = true
 
     [online.monitor.display]

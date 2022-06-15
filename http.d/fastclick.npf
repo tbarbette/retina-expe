@@ -59,14 +59,14 @@ DPDKInfo($MBUFS)
 
 fnt :: FNT();
 
-fd0 :: FromDPDKDevice(${self:0:pci}, PROMISC 1, SCALE parallel, NDESC $RXD, MTU 1514)
+fd0 :: FromDPDKDevice(${self:0:pci}, PROMISC 1, SCALE parallel, NDESC $RXD, MTU $MTU)
     -> MarkIPHeader(OFFSET 14)
 //    -> IPPrint
     -> Paint(0)
     -> ac :: AverageCounterIMP
     -> [0]fnt;
 
-fd1 :: FromDPDKDevice(${self:1:pci}, PROMISC 1, SCALE parallel, NDESC $RXD, MTU 1514)
+fd1 :: FromDPDKDevice(${self:1:pci}, PROMISC 1, SCALE parallel, NDESC $RXD, MTU $MTU)
     -> MarkIPHeader(OFFSET 14)
 //    -> IPPrint
     -> Paint(1)
