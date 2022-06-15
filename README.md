@@ -127,11 +127,37 @@ The final command to run is therefore:
 ```
 	cd /mydata/retina-expe/
 	source /local/env
-	npf-compare "local+fastclick,SAMPLE=pkt_count:Link speed" local+retina:Retina --test http.npf --cluster client=node-0-ctrl,nfs=0 server=node-1-ctrl,nfs=0 dut=node-2-ctrl,nfs=0 --show-full --show-cmd --variables "CPU=1" "SAMPLE={log_tls}" "DPDK_PATH=$DPDK_PATH" "GEN_RATE=[5000-30000#5000]" --graph-filename ssl.pdf --graph-size 6 3 --tags ssl tls rate
+	npf-compare "local+fastclick,SAMPLE=pkt_count:Link speed" local+retina:Retina local+suricata:Suricata --test http.npf --cluster client=node-0-ctrl,nfs=0 server=node-1-ctrl,nfs=0 dut=node-2-ctrl,nfs=0 --cluster-autosave --variables "CPU=1" "SAMPLE=log_tls" "DPDK_PATH=$DPDK_PATH" "GEN_RATE=[5000-30000#5000]" --graph-filename ssl.pdf --graph-size 6 3 --tags ssl tls rate --show-full --show-cmd
 ```
 
-This will produce a few PDF graphs, the ssl-avg_good_bps.pdf shoud look like the image below. Currently, only the baseline and Retina are tested. We're adding Suricata, stay tuned!
+### Results
+NPF will produce a few PDF graphs, the ssl-avg_good_bps.pdf shoud look like the image below. 
 
-![Figure](figs/ssl-avg_good_bps.png)
+![Figure](100G/ssl-avg_good_bps.png)
+
+The `tot_dropped_pkts` graph shows the number of packets dropped, and `pc_dropped_pkts` gives the percentage of packets dropped. Not all statistics are given by all programs, however lines may be missing from some of those plots. Figure 6 in the paper is avg_good_bps with dashed lines if pc_dropped_pkts > 1%.
+The `THROUGHPUT`, `LATENCY`, `REQUEST`, `NBREQ` and `HTTPTIMEOUT` graphs concerns the generator, they should be constant and are of little interest.
+
+The scripts for snort, zeek and tcpdump are also available, but as shown in the paper they do not provide more information.
+
+### Exploring
+
+#### Number of CPUs
+Simply change variables to explore other spaces, for instance how those system scale with multiple cores. Change `CPU=1 "GEN_RATE=[5000-30000#5000]"` per `"CPU=[1-8]" "GEN_RATE=30000"`, and set `--graph-filename cpu.pdf --single-output cpu.csv`
+
+![Figure](100G/cpu-avg_good_bps.png)
+
+#### Software configuration
+We tuned every competing software as best. If you think we should enable, for instance, a magic option in suricata to be more fair in our comparison, you can easily do so. The full suriacata.yaml config is generated for each experiment from `http.d/suricata.npf`. Change what you desire, if possible using a $VARIABLE.
+
+Then re-run the same NPF command, only with `local+suricata:Suricata` in the first arguments (the repo list) and add `--variables "VARIABLE={OLD,NEW}" --force-retest`. This will create a plot comparing the OLD and NEW value.
+
+If in a hurry, add `--config n_runs=1` to do only one run per variables.
+
+For instance, the support of DPDK in Suricata handles packets in RX and TX through different interfaces as thread mismatchs. So we have a mode where the client mirrors all traffic, not having eahc machine mirroring its comming packets.
+
+
+
+
 
 
