@@ -63,7 +63,7 @@ popd
 
 if [ ! -f suricata ] ; then
     cargo install --force cbindgen
-    git clone https://github.com/OISF/suricata.git
+    git clone https://github.com/tbarbette/suricata.git
     pushd suricata
     #Build libhtp
     git clone https://github.com/OISF/libhtp

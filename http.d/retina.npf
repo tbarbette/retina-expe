@@ -1,6 +1,7 @@
 %retina:script@dut autokill=true delay=7 sudo=true
 cp config.toml ${RETINA_PATH}/config.tmp.toml
 cd ${RETINA_PATH}
+rm -rf logs && mkdir logs
 export LD_LIBRARY_PATH=~/workspace/dpdk-21.08/install/lib/x86_64-linux-gnu/:$DPDK_PATH/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
 if [[ $SAMPLE == *"log"* ]] ; then
 	SUPL="-o /tmp/retina.log"

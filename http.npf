@@ -68,8 +68,8 @@ half:HALF=1
 
 %late_variables
 //Paths
-RETINA_PATH=EXPAND(${NPF_TESTIE_PATH}/retina/)
-SURICATA_PATH=EXPAND(${NPF_TESTIE_PATH}/suricata/)
+RETINA_PATH?=EXPAND(${NPF_TESTIE_PATH}/retina/)
+SURICATA_PATH?=EXPAND(${NPF_TESTIE_PATH}/suricata/)
 
 
 %config
