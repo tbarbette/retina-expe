@@ -57,7 +57,7 @@ NPF will look for cluster/ and repo/ in your current working/testie directory. W
 Follow https://github.com/stanford-esrg/retina/blob/main/INSTALL.md
 
 #### Suricata
-Install Suricata if you want to reproduce the comparison test against Suricata. You need the "master" version, as the DPDK support is in no release yet.
+Install Suricata if you want to reproduce the comparison test against Suricata. You need the "master" version, as the DPDK support is in no release yet. You need the modified version available at git clone https://github.com/tbarbette/suricata.git which enables precise packets statistics to be exported. Else the parsing python script will not work.
 
 ```
 sudo apt-get -y install python3 python3-pip build-essential meson pkg-config libnuma-dev python3-pyelftools libpcap-dev libclang-dev libyaml-dev  libpcre3 libpcre3-dbg libpcre3-dev libpcap-dev   \
@@ -65,7 +65,7 @@ sudo apt-get -y install python3 python3-pip build-essential meson pkg-config lib
                 libcap-ng-dev libcap-ng0 make libmagic-dev         \
                 libnss3-dev libgeoip-dev liblua5.1-dev libhiredis-dev libevent-dev libjansson-dev liblz4-dev libpcre2-dev
 cargo install --force cbindgen
-git clone https://github.com/OISF/suricata.git
+git clone https://github.com/tbarbette/suricata.git
 pushd suricata
 #Build libhtp
 git clone https://github.com/OISF/libhtp
