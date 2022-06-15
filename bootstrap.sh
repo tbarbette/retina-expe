@@ -9,7 +9,7 @@ fi
 sudo apt-get -y install python3 python3-pip build-essential meson pkg-config libnuma-dev python3-pyelftools libpcap-dev libclang-dev libyaml-dev  libpcre3 libpcre3-dbg libpcre3-dev libpcap-dev   \
                 libnet1-dev libyaml-0-2 libyaml-dev pkg-config zlib1g zlib1g-dev \
                 libcap-ng-dev libcap-ng0 make libmagic-dev         \
-                libnss3-dev libgeoip-dev liblua5.1-dev libhiredis-dev libevent-dev libjansson-dev liblz4-dev libpcre2-dev
+                libnss3-dev libgeoip-dev liblua5.1-dev libhiredis-dev libevent-dev libjansson-dev liblz4-dev libpcre2-dev  libdumbnet-dev libluajit-5.1-dev
 
 sudo python3 -m pip install --upgrade pip
 sudo python3 -m pip install --upgrade meson==0.59.4 npf

@@ -1674,7 +1674,7 @@ dpdk:
       # Threading: possible values are either "auto" or number of threads
       # - auto takes all cores
       # in IPS mode it is required to specify the number of cores and the numbers on both interfaces must match
-      threads: $(( max(1,$CPU / 2 if not $HALF else $CPU ) ))
+      threads: $(( max(1, $CPU ) ))
       promisc: true # promiscuous mode - capture all packets
       multicast: true # enables also detection on multicast packets
       checksum-checks: $CHKSUM_BOOL # if Suricata should validate checksums
