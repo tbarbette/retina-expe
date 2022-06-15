@@ -2,7 +2,7 @@
 
 This repository contains the scripts to run an experiment of the [Retina](https://github.com/stanford-esrg/retina) paper. 
 
-For most experiments we used a TAP on the Stanford traffic. For the Figure 6 experiment we used 2 machines in a client/server scenario, and a third machine acting as a TAP between those machines.
+For most experiments we used a TAP on the Stanford traffic. For the Figure 6 experiment we used 2 machines in a client/server scenario, and a third machine acting as a TAP between those machines. That machine runs Retina and competitors and will be referenced as the "DUT".
 
 The experiment manager is [NPF](https://github.com/tbarbette/npf), allowing to easily deploy the scripts over a cluster, and re-run experiments for multiple points and variables. In this experiment we will, as in the paper, augment the offered HTTP load and see how competing solutions perform.
 
@@ -10,12 +10,12 @@ Before running the experiments, you need to prepare your testbed according to th
 
 ## Physical testbed
 For the results in the paper, we used our own 100G machines. We propose to use CloudLab, a publicly available machine provider for research purpose.
-In any cases you need Mellanox NICs (ConnectX 4-7 or BlueField 1-2), hardware support for other NICs is untested.
+In any cases you need Mellanox NICs (ConnectX 4-7 or BlueField 1-2). Hardware support for other NICs is untested.
 
 ### CloudLab
 The profile used for the machines is available at [Retina-TAP](https://www.cloudlab.us/p/NetSched/retina-tap) . 
 
-This profile will build a ring of 3 machines. Both client and server use their second interface to mirror packets to the dut running retina. The machine uses Ubuntu 20.04, we recommend doing the same.
+This profile will build a ring of 3 machines. Both client and server use their second interface to mirror packets to the DUT running Retina. The machine uses Ubuntu 20.04.
 
 Create an account on [CloudLab](https://www.cloudlab.us/) then follow the link above and click on "instanciate".
 The profile has a parameter to set the machine type. You should select d6515 machines to have a 100G experiment. If none are available, then in general the c6525-25g are available. However it will run at 25G.
@@ -153,11 +153,4 @@ We tuned every competing software as best. If you think we should enable, for in
 Then re-run the same NPF command, only with `local+suricata:Suricata` in the first arguments (the repo list) and add `--variables "VARIABLE={OLD,NEW}" --force-retest`. This will create a plot comparing the OLD and NEW value.
 
 If in a hurry, add `--config n_runs=1` to do only one run per variables.
-
-For instance, the support of DPDK in Suricata handles packets in RX and TX through different interfaces as thread mismatchs. So we have a mode where the client mirrors all traffic, not having eahc machine mirroring its comming packets.
-
-
-
-
-
 
