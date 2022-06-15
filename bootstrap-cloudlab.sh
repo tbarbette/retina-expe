@@ -10,11 +10,7 @@ function addline() {
 }
 
 sudo apt-get update
-sudo apt-get -y install vim git zsh build-essential python3 python3-pip ninja-build libnuma-dev htop libmicrohttpd-dev linux-tools-$(uname -r)
-sudo python3 -m pip install --upgrade pip
-sudo python3 -m pip install --upgrade meson==0.59.4 npf
-export PATH=$PATH:/users/$USER/.local/bin/meson/
-#sudo mkdir -p /mnt/huge
+sudo apt-get -y install vim git zsh build-essential python3 python3-pip ninja-build libnuma-dev htop libmicrohttpd-dev linux-tools-$(uname -r) acl
 
 echo "Now adding 1G hugepages"
 sudo mkdir -p /mnt/huge_1G
@@ -33,14 +29,6 @@ sudo mount -t tmpfs -o size=8G tmpfs /tmp
 sudo chmod o-w -R /local 
 sudo chmod o-w -R /mydata
 
-
-USERS="root `ls /users`"
-for user in $USERS; do
-	sudo chsh -s /bin/bash $user
-	echo "source /local/env" | sudo tee -a /users/$user/.bashrc &> /dev/null
-done
-
-
 HOSTNAME=$(hostname)
 for i in $(seq 0 2) ; do
 	ip=$(getent hosts node-${i}.${HOSTNAME#*.} | awk "{print $1}")
@@ -55,3 +43,15 @@ chmod +x bootstrap.sh
 ./bootstrap.sh
 
 grep huge /proc/cmdline || ( echo "Rebooting to enable 1G huge pages !" && sudo reboot )
+
+USERS="root `ls /users`"
+for user in $USERS; do
+	sudo chsh -s /bin/bash $user
+	addline "source /local/env" /users/$user/.bashrc
+	sudo ln -s /users/geniuser/.cargo /users/$user/
+	sudo ln -s /users/geniuser/.rustup /users/$user/
+	sudo setfacl -R -m u:$user:rwx /users/$user/.cargo/
+	sudo setfacl -R -m u:$user:rwx /users/$user/.rustup/
+done
+
+echo "Bootstrap finished!"

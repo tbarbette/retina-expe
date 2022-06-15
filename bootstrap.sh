@@ -11,6 +11,11 @@ sudo apt-get -y install python3 python3-pip build-essential meson pkg-config lib
                 libcap-ng-dev libcap-ng0 make libmagic-dev         \
                 libnss3-dev libgeoip-dev liblua5.1-dev libhiredis-dev libevent-dev libjansson-dev liblz4-dev libpcre2-dev
 
+sudo python3 -m pip install --upgrade pip
+sudo python3 -m pip install --upgrade meson==0.59.4 npf
+export PATH=$PATH:/users/$USER/.local/bin/meson/
+
+
 if [ ! -f OFED_INSTALLED ] ; then
     OFED=MLNX_OFED_LINUX-5.4-1.0.3.0-ubuntu${DISTRIB_RELEASE}-x86_64
     wget http://www.mellanox.com/downloads/ofed/MLNX_OFED-5.4-1.0.3.0/${OFED}.tgz
@@ -41,9 +46,10 @@ fi
 
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y 
 
-echo "export PATH=\$PATH:/users/TomB/.local/bin/meson/" >> /local/env
+echo "export PATH=\$PATH:/users/TomB/.local/bin/meson/" > /local/env
 echo "export RTE_SDK=$DPDK_PATH" >> /local/env
 echo "export DPDK_PATH=$DPDK_PATH" >> /local/env
+echo "export LD_LIBRARY_PATH=$DPDK_PATH/lib/x86_64-linux-gnu" >> /local/env
 echo "export PKG_CONFIG_PATH=$DPDK_PATH/lib/x86_64-linux-gnu/pkgconfig/" >> /local/env
 echo "source $HOME/.cargo/env" >> /local/env
 
@@ -71,4 +77,3 @@ if [ ! -f suricata ] ; then
     popd
 fi
 
-echo "Bootstrap finished!"
