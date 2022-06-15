@@ -57,6 +57,8 @@ echo "source $HOME/.cargo/env" >> /local/env
 source /local/env
 
 git clone http://github.com/stanford-esrg/retina.git
+ln -s apps/retina/filter_tls retina/examples/
+sed -i 's#"core",#"core","examples/filter_tls",#' retina/Cargo.toml
 pushd retina
 cargo build --release
 popd
