@@ -93,7 +93,7 @@ At first run, NPF itself will build some dependencies by itself, such as FastCli
 Then NPF will run some init scripts on all machines. Installing NGINX on "server", configuring  IPs, ...
 
 Then for values of given variables, NPF will run scripts on all machines. In the first experiment for intance we re-run the same test but with 25 generation rates. Each test is run 3 times. And this is done for all "series" (baseline, Retina, Suricata, ... think of it as lines in your line graph).
-If you re-launch NPF, it will not re-run tests for variables already tried. For instance, if you try a first run with CPU=1, then re-try CPU=[1-8], only the tests for CPU=2 to 8 will run. The results from 1 will be taken in cache. If you want to force re-run the test, use `--force-retest`.
+If you re-launch NPF, it will not re-run tests for variables already tried. For instance, if you try a first run with CPU=1, then re-try `CPU=[1*8]`, only the tests for CPU=2 to 8 will run. The results from 1 will be taken in cache. If you want to force re-run the test, use `--force-retest`.
 
 Then some cleanup python scripts are done after each runs, to parse results from logs and export it in the NPF format.
 
@@ -145,11 +145,11 @@ The scripts for snort, zeek and tcpdump are also available, but as shown in the 
 ### Exploring
 
 #### Number of CPUs
-Simply change variables to explore other spaces, for instance how those system scale with multiple cores. Change `CPU=1 "GEN_RATE=[5000-30000#5000]"` per `"CPU=[1-8]" "GEN_RATE=30000"`, and set `--graph-filename cpu.pdf --single-output cpu.csv`
+Simply change variables to explore other spaces, for instance how those system scale with multiple cores. Change `CPU=1 "GEN_RATE=[5000-30000#5000]"` per `"CPU=[1*8]" "GEN_RATE=30000"`, and set `--graph-filename cpu.pdf`
 
 ![Figure](100G/cpu-avg_good_bps.png)
 
-This result is not in the paper. CloudLab's CPU are performing worst than our Intel CPUs. With our testbed, two cores were more than enough to have Retina reach the testbed limits. Snort is also not multi-threaded so it would just be a point on the left, Zeek needs a different setup to scale. All in all this experiment did not add much information except about how "competitors" scale, which is not the intended point.
+This result is not in the paper. CloudLab's CPU are performing worst than our Intel CPUs. With our testbed, two cores were more than enough to have Retina reach the testbed limits. Snort is also not multi-threaded so it would just be a point on the left of the grapg, Zeek needs a different setup to scale. All in all this experiment did not add much information except about how "competitors" scale, which is not the intended point.
 
 #### Software configuration
 We tuned every competing software as best. If you think we should enable, for instance, a magic option in suricata to be more fair in our comparison, you can easily do so. The full suriacata.yaml config is generated for each experiment from `http.d/suricata.npf`. Change what you desire, if possible using a $VARIABLE.
