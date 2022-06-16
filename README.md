@@ -2,6 +2,8 @@
 
 This repository contains the scripts to run an experiment of the [Retina](https://github.com/stanford-esrg/retina) paper. 
 
+A video showing this experiment running on CloudLab is available at https://youtu.be/cRYmYW9MF0o . The video is not self-sufficient to run the experiment yourself, it is a companion to these instructions.
+
 For most experiments we used a TAP on the Stanford traffic. For the Figure 6 experiment we used 2 machines in a client/server scenario, and a third machine acting as a TAP between those machines. That machine runs Retina and competitors and will be referenced as the "DUT".
 
 The experiment manager is [NPF](https://github.com/tbarbette/npf), allowing to easily deploy the scripts over a cluster, and re-run experiments for multiple points and variables. In this experiment we will, as in the paper, augment the offered HTTP load and see how competing solutions perform.
@@ -147,10 +149,13 @@ Simply change variables to explore other spaces, for instance how those system s
 
 ![Figure](100G/cpu-avg_good_bps.png)
 
+This result is not in the paper. CloudLab's CPU are performing worst than our Intel CPUs. With our testbed, two cores were more than enough to have Retina reach the testbed limits. Snort is also not multi-threaded so it would just be a point on the left, Zeek needs a different setup to scale. All in all this experiment did not add much information except about how "competitors" scale, which is not the intended point.
+
 #### Software configuration
 We tuned every competing software as best. If you think we should enable, for instance, a magic option in suricata to be more fair in our comparison, you can easily do so. The full suriacata.yaml config is generated for each experiment from `http.d/suricata.npf`. Change what you desire, if possible using a $VARIABLE.
 
 Then re-run the same NPF command, only with `local+suricata:Suricata` in the first arguments (the repo list) and add `--variables "VARIABLE={OLD,NEW}" --force-retest`. This will create a plot comparing the OLD and NEW value.
 
+### Running faster
 If in a hurry, add `--config n_runs=1` to do only one run per variables.
 
