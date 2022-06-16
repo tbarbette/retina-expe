@@ -44,7 +44,7 @@ chmod +x bootstrap.sh
 
 grep huge /proc/cmdline || ( echo "Rebooting to enable 1G huge pages !" && sudo reboot )
 
-USERS="root `ls /users`"
+USERS="`ls /users`"
 for user in $USERS; do
 	sudo chsh -s /bin/bash $user
 	addline "source /local/env" /users/$user/.bashrc
@@ -52,6 +52,7 @@ for user in $USERS; do
 	sudo ln -s /users/geniuser/.rustup /users/$user/
 	sudo setfacl -R -m u:$user:rwx /users/$user/.cargo/
 	sudo setfacl -R -m u:$user:rwx /users/$user/.rustup/
+	sudo setfacl -R -m u:$user:rwx /mydata/retina-expe/
 done
 
 echo "Bootstrap finished!"
