@@ -159,3 +159,11 @@ Then re-run the same NPF command, only with `local+suricata:Suricata` in the fir
 ### Running faster
 If in a hurry, add `--config n_runs=1` to do only one run per variables.
 
+
+
+### 25G Results
+With the 25G machines, providing you did the "nic=1+2" modification everything will work the same, except Retina will match the line rate as the testbed tops at 25G:
+
+![Figure](25G/ssl-avg_good_bps.png)
+
+
