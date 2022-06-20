@@ -4,9 +4,9 @@ This repository contains the scripts to run an experiment of the [Retina](https:
 
 A video showing this experiment running on CloudLab is available at https://youtu.be/cRYmYW9MF0o . The video is not self-sufficient to run the experiment yourself, it is a companion to these instructions.
 
-For most experiments we used a TAP on the Stanford traffic. For the Figure 6 experiment we used 2 machines in a client/server scenario, and a third machine acting as a TAP between those machines. That machine runs Retina and competitors and will be referenced as the "DUT".
+For most experiments we used a TAP on the Stanford traffic. For the Figure 6 experiment we used 2 machines in a client/server scenario, and a third machine acting as a TAP between those machines. That machine runs Retina and competitors. The thrid TAP machine will be referenced as the "DUT".
 
-The experiment manager is [NPF](https://github.com/tbarbette/npf), allowing to easily deploy the scripts over a cluster, and re-run experiments for multiple points and variables. In this experiment we will, as in the paper, augment the offered HTTP load and see how competing solutions perform.
+The experiment manager is [NPF](https://github.com/tbarbette/npf), allowing to easily deploy the scripts over a cluster, and re-run experiments for multiple points and variables. In this experiment we will, as in the paper, augment the offered HTTPS load and see how competing solutions perform.
 
 Before running the experiments, you need to prepare your testbed according to the following guidelines.
 
