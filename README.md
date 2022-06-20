@@ -28,7 +28,7 @@ No need to give a name to the experiment then click on Finish. The profile will 
 	cd /mydata/retina-expe/
 	tail -f /local/logs/startup.log
 
-Verify the last line is "Boostrap finished!", if not the script may still be running. It takes about 15 minutes install all dependencies and continue despite the node being marked as "ready". The node will also reboot once to enable kenrel cmdline options, such as CPU isolation and 1G huge pages.
+Verify the last line is "Boostrap finished!", if not the script may still be running. It takes about 15 minutes to install all dependencies and continue despite the node being marked as "ready". The node will also reboot once to enable kernel cmdline options, such as CPU isolation and 1G huge pages.
 
 ### Alternative : your own testbed
 You need 3 x86_64 machines with dual-port 100G Mellanox NICs (CX4 to CX7 or BF1-2). Other 100G NICs should work, but they're untested. Machine 1 and 2 should have their first interface connected together. Their second interface connected to port 0 and 1 of the third machine.
@@ -40,7 +40,7 @@ We recommand using Ubuntu 20.04 as this is what we used for all experiments.
 We provide a script to automatically build dependencies, configure hugepages, ... It works on ClouldLab, and should work on your Ubuntu testbed too.
 
 ### Automatic
-**This is already run on the cloudlab profile, you have nothing to do.**
+**This is already run on the cloudlab profile, you have nothing to do when using CloudLab.**
 Run ./bootstrap.sh on all machines to install all dependencies at once. This will only work with Ubuntu (preferably 20.04).
 
 ### Manual
@@ -87,17 +87,17 @@ Our experiments uses NPF, a tool to manage experiments, run the tests over a clu
 NPF needs passwordless sudo access through SSH to all machines. This is already provided if using the CloudLab image.
 
 ### Details about NPF
-NPF uses a test description files that gives variables, scripts, setup phase, where to run what, ... It is in this repository "http.npf".
+NPF uses a test description files that gives variables, scripts, setup phase, where to run what, ... It is the file [http.npf](http.npf) in this repository.
 
-At first run, NPF itself will build some dependencies by itself, such as FastClick to compute baseline speeds and WRK to generate HTTP load.
+At first run, NPF will build some dependencies by itself, such as FastClick to compute baseline speeds and WRK to generate HTTP(S) load.
 Then NPF will run some init scripts on all machines. Installing NGINX on "server", configuring  IPs, ...
 
-Then for values of given variables, NPF will run scripts on all machines. In the first experiment for intance we re-run the same test but with 25 generation rates. Each test is run 3 times. And this is done for all "series" (baseline, Retina, Suricata, ... think of it as lines in your line graph).
-If you re-launch NPF, it will not re-run tests for variables already tried. For instance, if you try a first run with CPU=1, then re-try `CPU=[1*8]`, only the tests for CPU=2 to 8 will run. The results from 1 will be taken in cache. If you want to force re-run the test, use `--force-retest`.
+Then for all values of given variables NPF will run scripts on all machines. In the first experiment for intance we re-run the same test but with 25 generation rates. Each test is run 3 times. And this is done for all "series" (baseline, Retina, Suricata, ... think of it as lines in a plot).
+If you re-launch NPF, it will not re-run tests for variables already tried. For instance, if you try a first run with `CPU=1`, then re-try `CPU=[1*8]`, only the tests for CPU=2 to 8 will run. The results from 1 will be taken in cache. If you want to force re-running the test, use `--force-retest`.
 
 Then some cleanup python scripts are done after each runs, to parse results from logs and export it in the NPF format.
 
-After all tests, NPF will automatically produce some graph. You can add --output out.csv to generate some CSVs.
+After all tests, NPF will automatically produce some graph. You can add --output out.csv to generate some CSVs on top of the graphs.
 
 ### Running NPF
 
@@ -166,4 +166,5 @@ With the 25G machines, providing you did the "nic=1+2" modification everything w
 
 ![Figure](25G/ssl-avg_good_bps.png)
 
-
+## See also
+We also propose a [Docker image](https://github.com/tbarbette/retina-docker/) to try Retina on a physical interface, without the hassle but without the performance too.
