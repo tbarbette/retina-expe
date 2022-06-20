@@ -20,7 +20,7 @@ The profile used for the machines is available at [Retina-TAP](https://www.cloud
 This profile will build a ring of 3 machines. Both client and server use their second interface to mirror packets to the DUT running Retina. The machine uses Ubuntu 20.04.
 
 Create an account on [CloudLab](https://www.cloudlab.us/) then follow the link above and click on "instanciate".
-The profile has a parameter to set the machine type. You should select d6515 machines to have a 100G experiment. If none are available, then in general the c6525-25g are available. However it will run at 25G.
+The profile has a parameter to set the machine type. You should select d6515 machines to have a 100G experiment. If none are available, then in general the c6525-25g are available. However it will run at 25G. We show how the experiment is affected in the graphs at the end of this page.
 No need to give a name to the experiment then click on Finish. The profile will automatically launch the bootstrap.sh script to install everything on all machines.  After a dozen minutes, you will get the SSH command to jump to the server.
 
 #### Verify the cloudlab image works
