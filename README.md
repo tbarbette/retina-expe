@@ -15,7 +15,7 @@ For the results in the paper, we used our own 100G machines. We propose to use C
 In any cases you need Mellanox NICs (ConnectX 4-7 or BlueField 1-2). Hardware support for other NICs is untested.
 
 ### CloudLab
-The profile used for the machines is available at [Retina-TAP](https://www.cloudlab.us/p/NetSched/retina-tap) . 
+The profile used for the machines is available at [Retina-TAP](https://www.cloudlab.us/p/retina/retina-tap) . 
 
 This profile will build a ring of 3 machines. Both client and server use their second interface to mirror packets to the DUT running Retina. The machine uses Ubuntu 20.04.
 
