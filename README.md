@@ -4,7 +4,7 @@ This repository contains the scripts to run an experiment of the [Retina](https:
 
 A video showing this experiment running on CloudLab is available at https://youtu.be/cRYmYW9MF0o . The video is not self-sufficient to run the experiment yourself, it is a companion to these instructions.
 
-For most experiments we used a TAP on the Stanford traffic. For the Figure 6 experiment we used 2 machines in a client/server scenario, and a third machine acting as a TAP between those machines. That machine runs Retina and competitors. The thrid TAP machine will be referenced as the "DUT".
+For most experiments we used a TAP on the Stanford University traffic. However, for the Figure 6 experiment we used 2 machines in a client/server scenario, and a third machine acting as a TAP between those machines. That machine runs Retina and competing software. The thrid TAP machine will be referenced as the "DUT".
 
 The experiment manager is [NPF](https://github.com/tbarbette/npf), allowing to easily deploy the scripts over a cluster, and re-run experiments for multiple points and variables. In this experiment we will, as in the paper, augment the offered HTTPS load and see how competing solutions perform.
 
@@ -41,6 +41,7 @@ We provide a script to automatically build dependencies, configure hugepages, ..
 
 ### Automatic
 **This is already run on the cloudlab profile, you have nothing to do when using CloudLab.**
+
 Run ./bootstrap.sh on all machines to install all dependencies at once. This will only work with Ubuntu (preferably 20.04).
 
 ### Manual
@@ -140,7 +141,7 @@ NPF will produce a few PDF graphs, the ssl-avg_good_bps.pdf shoud look like the 
 The `tot_dropped_pkts` graph shows the number of packets dropped, and `pc_dropped_pkts` gives the percentage of packets dropped. Not all statistics are given by all programs, however lines may be missing from some of those plots. Figure 6 in the paper is avg_good_bps with dashed lines if pc_dropped_pkts > 1%.
 The `THROUGHPUT`, `LATENCY`, `REQUEST`, `NBREQ` and `HTTPTIMEOUT` graphs concerns the generator, they should be constant and are of little interest.
 
-The scripts for snort, zeek and tcpdump are also available, but as shown in the paper they do not provide more information.
+The scripts for snort, zeek and tcpdump are also available, but as shown in the paper they do not perform better. Suricata is the closest "competitor" though without being as flexible as the Rust callbacks. Retina is not an IDS.
 
 ### Exploring
 
@@ -149,7 +150,7 @@ Simply change variables to explore other spaces, for instance how those system s
 
 ![Figure](100G/cpu-avg_good_bps.png)
 
-This result is not in the paper. CloudLab's CPU are performing worst than our Intel CPUs. With our testbed, two cores were more than enough to have Retina reach the testbed limits. Snort is also not multi-threaded so it would just be a point on the left of the grapg, Zeek needs a different setup to scale. All in all this experiment did not add much information except about how "competitors" scale, which is not the intended point.
+This result is not in the paper. CloudLab's CPU are performing worst than our Intel CPUs. With our testbed, two cores were more than enough to have Retina reach the testbed limits. Snort is also not multi-threaded so it would just be a point on the left of the graph. Zeek needs a different setup to scale. All in all this experiment did not add much information except about how "competitors" scale, which is not the intended point.
 
 #### Software configuration
 We tuned every competing software as best. If you think we should enable, for instance, a magic option in suricata to be more fair in our comparison, you can easily do so. The full suriacata.yaml config is generated for each experiment from `http.d/suricata.npf`. Change what you desire, if possible using a $VARIABLE.
@@ -168,3 +169,9 @@ With the 25G machines, providing you did the "nic=1+2" modification everything w
 
 ## See also
 We also propose a [Docker image](https://github.com/tbarbette/retina-docker/) to try Retina on a physical interface, without the hassle but without the performance too.
+
+## Acknowledgements
+
+We would like to thank the CloudLab[1] people that enabled the reprocudibility of this experiment with their shared infrastructure.
+
+[1] Duplyakin, D., Ricci, R., Maricq, A., Wong, G., Duerig, J., Eide, E., ... & Mishra, P. (2019). The Design and Operation of CloudLab. In 2019 USENIX annual technical conference (USENIX ATC 19) (pp. 1-14).
