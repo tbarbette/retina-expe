@@ -67,6 +67,7 @@ if [ ! -f suricata ] ; then
     cargo install --force cbindgen
     git clone https://github.com/tbarbette/suricata.git
     pushd suricata
+    git checkout precise7
     #Build libhtp
     git clone https://github.com/OISF/libhtp
     pushd libhtp
