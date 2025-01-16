@@ -65,6 +65,8 @@ KEEPALIVE=0
 ZERO_THRESH_PC=1
 half:HALF=1
 
+suricata:SURICATA_DO_APP=no
+suricata:SURICATA_RULES=suricata.rules
 
 %late_variables
 //Paths
@@ -86,7 +88,7 @@ var_format={avg_good_bps:%d,CPU:%d}
 //graph_cross_reference={FSIZE:REQUEST}
 result_add={NBREQ,THROUGHPUT,REQUEST}
 results_expect={avg_good_bps}
-timeout=45
+timeout=60
 accept_zero={DROPPED,zero_loss_throughput,tot_dropped_pkts,pc_dropped_pkts,dropped}
 
 
@@ -251,6 +253,7 @@ RESULTS["tot_dropped_pkts"] = dropped
 RESULTS["tot_processed_pkts"] = packets
 
 RESULTS["pc_dropped_pkts"] = RESULTS["tot_dropped_pkts"] * 100 / (RESULTS["tot_processed_pkts"] + RESULTS["tot_dropped_pkts"] ) 
+RESULTS["pc_good_pkts"] = 100 - RESULTS["pc_dropped_pkts"]
 if RESULTS["pc_dropped_pkts"] < ZERO_THRESH_PC:
         RESULTS["zero_loss_throughput"] = RESULTS["avg_good_bps"]
 

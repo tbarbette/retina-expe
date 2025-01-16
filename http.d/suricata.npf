@@ -13,6 +13,7 @@ rm log/stats.log
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH timeout $PS_TIME ./src/suricata -c suricata.yaml -s temp.rules --dpdk
 cp log/stats.log log/stats.log.snapshot
 echo "EVENT DUT_FINISHED"
+sleep 2
 
 //TLS filtered logg
 %file@dut temp.rules

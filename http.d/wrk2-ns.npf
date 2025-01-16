@@ -43,6 +43,7 @@ if [ $th -ge $con ] ; then
     th=$con
 fi
 
+sudo chmod a+w .
 echo "EVENT LOAD_START"
 timeout $(( ${GEN_TIME} + 10 )) taskset -c $cpuid wrk -c $con -r --latency -R $rate -t $th -d${GEN_TIME}s --bind $ip $WRKSCRIPTCMD "${WRK_PROTOCOL}://${WRK_HOST}:${HTTP_PORT}/${FILE_PATH}" | tee $file
 stat=$?
