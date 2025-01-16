@@ -44,7 +44,7 @@ if [ $th -ge $con ] ; then
 fi
 
 echo "EVENT LOAD_START"
-timeout $(( ${GEN_TIME} + 10 )) taskset -c $cpuid wrk -c $con -r --latency -R $rate -t $th -d${GEN_TIME}s --bind $ip $WRKSCRIPTCMD "${WRK_PROTOCOL}://${WRK_HOST}:${HTTP_PORT}/${FILE_PATH}" | tee $file &> /dev/null
+timeout $(( ${GEN_TIME} + 10 )) taskset -c $cpuid wrk -c $con -r --latency -R $rate -t $th -d${GEN_TIME}s --bind $ip $WRKSCRIPTCMD "${WRK_PROTOCOL}://${WRK_HOST}:${HTTP_PORT}/${FILE_PATH}" | tee $file
 stat=$?
 if [ $stat -ne 0 ] ; then
     echo "ERROR"

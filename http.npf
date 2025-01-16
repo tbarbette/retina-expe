@@ -75,11 +75,13 @@ SURICATA_PATH?=EXPAND(${NPF_TESTIE_PATH}/suricata/)
 %config
 //Configuration, mostly for graphs
 var_names={FSIZE:HTTP object size (KB),THROUGHPUT:HTTP Goodput,avg_good_bps:Bytes processed (Gbps),GEN_RATE:HTTP Requests (kreq/s),zero_loss_throughput:Zero loss throughput (Gbps)}
+mb:var_names+={avg_good_bps:Bytes processed (MBps)}
 ssl|tls:var_names+={GEN_RATE:HTTPS Requests (kreq/s)}
 var_log={FSIZE}
 var_lim={FSIZE:1-256,result-avg_good_bps:0-,result-zero_loss_throughput:0-80}
 var_unit={THROUGHPUT:GB/s}
-var_divider={avg_good_bps:1000000000,GEN_RATE:1000,zero_loss_throughput:1000000000}
+-mb:var_divider={avg_good_bps:1000000000,GEN_RATE:1000,zero_loss_throughput:1000000000}
+mb:var_divider={avg_good_bps:1000000,GEN_RATE:1000,zero_loss_throughput:100000}
 var_format={avg_good_bps:%d,CPU:%d}
 //graph_cross_reference={FSIZE:REQUEST}
 result_add={NBREQ,THROUGHPUT,REQUEST}

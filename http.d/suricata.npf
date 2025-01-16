@@ -614,20 +614,20 @@ include: ${SURICATA_PATH}secondif.yaml
 app-layer:
   protocols:
     rfb:
-      enabled: no
+      enable: $SURICATA_DO_APP
       detection-ports:
         dp: 5900, 5901, 5902, 5903, 5904, 5905, 5906, 5907, 5908, 5909
     mqtt:
-      enabled: no
+      enable: $SURICATA_DO_APP
       # max-msg-length: 1mb
       # subscribe-topic-match-limit: 100
       # unsubscribe-topic-match-limit: 100
     krb5:
-      enabled: no
+      enable: $SURICATA_DO_APP
     snmp:
-      enabled: no
+      enable: $SURICATA_DO_APP
     ike:
-      enabled: no
+      enable: $SURICATA_DO_APP
     tls:
       enabled: yes
       detection-ports:
@@ -652,19 +652,19 @@ app-layer:
       #encryption-handling: default
 
     dcerpc:
-      enabled: no
+      enable: $SURICATA_DO_APP
     ftp:
-      enabled: no
+      enable: $SURICATA_DO_APP
       # memcap: 64mb
     rdp:
       #enabled: yes
     ssh:
-      enabled: no
+      enable: $SURICATA_DO_APP
       #hassh: yes
     http2:
       enabled: $HTTP
     smtp:
-      enabled: no
+      enable: $SURICATA_DO_APP
       raw-extraction: no
       # Configure SMTP-MIME Decoder
       mime:
@@ -695,7 +695,7 @@ app-layer:
     imap:
       enabled: detection-only
     smb:
-      enabled: no
+      enable: $SURICATA_DO_APP
       detection-ports:
         dp: 139, 445
 
@@ -703,16 +703,16 @@ app-layer:
       #stream-depth: 0
 
     nfs:
-      enabled: no
+      enable: $SURICATA_DO_APP
     tftp:
-      enabled: no
+      enable: $SURICATA_DO_APP
     dns:
       tcp:
-        enabled: no
+        enable: $SURICATA_DO_APP
         detection-ports:
           dp: 53
       udp:
-        enabled: no
+        enable: $SURICATA_DO_APP
         detection-ports:
           dp: 53
     http:
@@ -839,7 +839,7 @@ app-layer:
       # If the limit is reached, the app-layer-event:modbus.flooded; will match.
       #request-flood: 500
 
-      enabled: no
+      enable: $SURICATA_DO_APP
       detection-ports:
         dp: 502
       # According to MODBUS Messaging on TCP/IP Implementation Guide V1.0b, it
@@ -853,25 +853,25 @@ app-layer:
 
     # DNP3
     dnp3:
-      enabled: no
+      enable: $SURICATA_DO_APP
       detection-ports:
         dp: 20000
 
     # SCADA EtherNet/IP and CIP protocol support
     enip:
-      enabled: no
+      enable: $SURICATA_DO_APP
       detection-ports:
         dp: 44818
         sp: 44818
 
     ntp:
-      enabled: no
+      enable: $SURICATA_DO_APP
 
     dhcp:
-      enabled: no
+      enable: $SURICATA_DO_APP
 
     sip:
-      #enabled: no
+      #enable: $SURICATA_DO_APP
 
 # Limit for the maximum number of asn1 frames to decode (default 256)
 asn1-max-frames: 256
@@ -1553,7 +1553,7 @@ capture:
 default-rule-path: ./rules
 
 rule-files:
-  - suricata.rules
+    - $SURICATA_RULES
 
 ##
 ## Auxiliary configuration files.
